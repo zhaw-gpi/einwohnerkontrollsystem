@@ -20,15 +20,10 @@ public class PrepareDataForReview implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) throws Exception {
         Map<String,Object> variables = execution.getVariables();
-        String meldungsTyp = (String) variables.get("Meldungstyp");
-        String vorgang = "Bla";
-        if(meldungsTyp.equals("platformMoveData")){
-            vorgang = "Umzug";
-        }
         
-        String dataToReview = "Folgende Daten zum " + vorgang + " wurden gemeldet:\n\n"
-                + "Personendaten:\n" + "Vorname: " + (String) variables.get("firstName");
-    }
-    
-    
+        String nachrichtenTyp = (String) variables.get("nachrichtenTyp");
+        
+        String dataToReview = "<p>Bitte prüfen Sie, ob der folgende Antrag zum "
+                + nachrichtenTyp + " bewilligt werden kann.</p>";
+    }    
 }

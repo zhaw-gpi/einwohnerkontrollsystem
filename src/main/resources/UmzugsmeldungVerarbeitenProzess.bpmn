@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.10.0">
   <bpmn:collaboration id="Collaboration_0uir125">
     <bpmn:participant id="Participant_0mt1n95" name="Einwohnerkontrollsystem" processRef="RelocationMessageHandlingProcess" />
     <bpmn:participant id="Participant_1wukrk4" name="Umzugsplattform" />
@@ -17,10 +17,25 @@
     <bpmn:sequenceFlow id="SequenceFlow_0p61xpr" name="Bewilligt" sourceRef="ExclusiveGateway_17bi2ju" targetRef="Task_0hcaizb">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${requestApproved}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0ep01t3" sourceRef="Task_06du9cw" targetRef="ExclusiveGateway_17bi2ju" />
-    <bpmn:sequenceFlow id="SequenceFlow_17id93y" sourceRef="Task_07g0pyt" targetRef="Task_06du9cw" />
     <bpmn:sequenceFlow id="SequenceFlow_1m635hr" sourceRef="StartEventProcessStarted" targetRef="Task_07g0pyt" />
     <bpmn:startEvent id="StartEventProcessStarted" name="Umzugs-, Wegzugs- oder Zuzugsmeldung erhalten">
+      <bpmn:documentation><![CDATA[Der WebService-Controller hat basierend auf dem Aufruf der entsprechenden WebService-Operation eine neue Prozessinstanz erstellt und ihr folgende Prozessvariablen übergeben:
+- (vn)
+- firstName
+- officialName
+- sex
+- dateOfBirth
+- emailAddress
+- phoneNumber
+- (street)
+- (houseNumber)
+- (swissZipCode)
+- (town)
+- (movingDate)
+- (administrativDwellingNumber)
+- (departureDate)
+- (arrivalDate)
+]]></bpmn:documentation>
       <bpmn:outgoing>SequenceFlow_1m635hr</bpmn:outgoing>
       <bpmn:messageEventDefinition messageRef="Message_0361g3h" />
     </bpmn:startEvent>
@@ -46,8 +61,42 @@ Kontaktangaben für allfällige Rückfragen:
 - Telefon: {{eCH-0185:phoneNumber}}""
 ]]></bpmn:documentation>
       <bpmn:incoming>SequenceFlow_1m635hr</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_17id93y</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_04epzhk</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_17bi2ju" name="Prüfergebnis?">
+      <bpmn:incoming>SequenceFlow_1agz48n</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0p61xpr</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0visc5j</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0fqy019">
+      <bpmn:incoming>SequenceFlow_1cn0wbi</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_05i5lfn</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1cgqm8v</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_05i5lfn" sourceRef="Task_1a6hmrf" targetRef="ExclusiveGateway_0fqy019" />
+    <bpmn:sequenceFlow id="SequenceFlow_1cn0wbi" sourceRef="Task_0hcaizb" targetRef="ExclusiveGateway_0fqy019" />
+    <bpmn:sequenceFlow id="SequenceFlow_1cgqm8v" sourceRef="ExclusiveGateway_0fqy019" targetRef="EndEventProcessEnded" />
+    <bpmn:scriptTask id="Task_0hcaizb" name="Quittierungs-meldung als Durchgeführt setzen" scriptFormat="JavaScript">
+      <bpmn:documentation>Code wird auf 2 (Durchgeführt) gesetzt</bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_0p61xpr</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1cn0wbi</bpmn:outgoing>
+      <bpmn:script><![CDATA[execution.setVariable("code",2);]]></bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Task_1a6hmrf" name="Quittierungs-meldung als Abgelehnt setzen" scriptFormat="JavaScript">
+      <bpmn:documentation>Code wird auf 1 (Abgelehnt) gesetzt, textGerman auf den Wert der Variable requestDeclinedReason.</bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_0visc5j</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_05i5lfn</bpmn:outgoing>
+      <bpmn:script><![CDATA[execution.setVariable("code",1);
+execution.setVariable("textGerman",requestDeclinedReason);]]></bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="EndEventProcessEnded" name="Fachliche Quittierung gesendet">
+      <bpmn:documentation><![CDATA[Dem WebService-Controller werden folgende Prozessvariablen zurück gegeben:
+- code
+- (textGerman)
+]]></bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_1cgqm8v</bpmn:incoming>
+      <bpmn:messageEventDefinition />
+    </bpmn:endEvent>
     <bpmn:userTask id="Task_06du9cw" name="Wegzug, Zuzug oder Umzug prüfen" camunda:formKey="embedded:app:forms/checkMoveEligibility.html" camunda:candidateGroups="einwohnerkontrolle">
       <bpmn:documentation><![CDATA[Dieser Task wird für einen Einwohneramt-Mitarbeit generiert, respektive für eine Gruppe
 Zunächst wird die Variable dataToReview  in einem <p>-Element dargestellt. Dann gibt es folgende Felder:
@@ -60,42 +109,14 @@ Ablehnungsgrund
   String
   textarea (Optional)
 ]]></bpmn:documentation>
-      <bpmn:incoming>SequenceFlow_17id93y</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0ep01t3</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_17bi2ju" name="Prüfergebnis?">
-      <bpmn:incoming>SequenceFlow_0ep01t3</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0p61xpr</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_0visc5j</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_0fqy019">
-      <bpmn:incoming>SequenceFlow_1cn0wbi</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_05i5lfn</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1cgqm8v</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_05i5lfn" sourceRef="Task_1a6hmrf" targetRef="ExclusiveGateway_0fqy019" />
-    <bpmn:sequenceFlow id="SequenceFlow_1cn0wbi" sourceRef="Task_0hcaizb" targetRef="ExclusiveGateway_0fqy019" />
-    <bpmn:sequenceFlow id="SequenceFlow_1cgqm8v" sourceRef="ExclusiveGateway_0fqy019" targetRef="EndEventProcessEnded" />
-    <bpmn:scriptTask id="Task_0hcaizb" name="Positive fachliche Quittierung erstellen" scriptFormat="JavaScript">
-      <bpmn:documentation><![CDATA[Positive Benutzereingabe in eine SOAP-Nachricht übersetzen
-Es wird eine SOAP-Nachricht gemäss eCH0058:eventReport erstellt mit dem Sub-Knoten eCH-0194:positiveReport und darin mit einem Sub-Knoten eCH-0194:generalResponse, wobei eCH-0194:code auf 2 gesetzt wird und sonst keine weiteren Angaben zurück gegeben werden.]]></bpmn:documentation>
-      <bpmn:incoming>SequenceFlow_0p61xpr</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1cn0wbi</bpmn:outgoing>
-      <bpmn:script><![CDATA[execution.setVariable("code",2);]]></bpmn:script>
+    <bpmn:sequenceFlow id="SequenceFlow_04epzhk" sourceRef="Task_07g0pyt" targetRef="Task_1vz1jn0" />
+    <bpmn:scriptTask id="Task_1vz1jn0" name="Temp für Aufgabe 3 User Task-Eingaben simulieren" scriptFormat="JavaScript">
+      <bpmn:incoming>SequenceFlow_04epzhk</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1agz48n</bpmn:outgoing>
+      <bpmn:script><![CDATA[execution.setVariable("requestApproved",true);]]></bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="Task_1a6hmrf" name="Negative fachliche Quittierung erstellen" scriptFormat="JavaScript">
-      <bpmn:documentation><![CDATA[Negative Benutzereingabe in eine SOAP-Nachricht übersetzen
-Es wird eine SOAP-Nachricht gemäss eCH0058:eventReport erstellt mit dem Sub-Knoten eCH-0194:negativeReport und darin mit einem Sub-Knoten eCH-0194:generalError, wobei eCH-0194:code auf 1 gesetzt wird und eCH-0194:textGerman auf den Wert der Variable requestDeclinedReason.]]></bpmn:documentation>
-      <bpmn:incoming>SequenceFlow_0visc5j</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_05i5lfn</bpmn:outgoing>
-      <bpmn:script><![CDATA[execution.setVariable("code",1);
-execution.setVariable("textGerman",requestDeclinedReason);]]></bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="EndEventProcessEnded" name="Fachliche Quittierung gesendet">
-      <bpmn:documentation>Aufbereitete SOAP-Nachricht wird gesendet</bpmn:documentation>
-      <bpmn:incoming>SequenceFlow_1cgqm8v</bpmn:incoming>
-      <bpmn:messageEventDefinition />
-    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1agz48n" sourceRef="Task_1vz1jn0" targetRef="ExclusiveGateway_17bi2ju" />
   </bpmn:process>
   <bpmn:message id="Message_0361g3h" name="newPlatformMoveMessage" />
   <bpmn:message id="Message_1dko3cc" name="newPlatformMoveMessage" />
@@ -135,15 +156,8 @@ execution.setVariable("textGerman",requestDeclinedReason);]]></bpmn:script>
           <dc:Bounds x="754" y="-34.999999999999964" width="56" height="24" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0ep01t3_di" bpmnElement="SequenceFlow_0ep01t3">
-        <di:waypoint xsi:type="dc:Point" x="384" y="155" />
-        <di:waypoint xsi:type="dc:Point" x="428" y="155" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="361" y="134" width="90" height="12" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="UserTask_01l0zzf_di" bpmnElement="Task_06du9cw">
-        <dc:Bounds x="284" y="115" width="100" height="80" />
+      <bpmndi:BPMNShape id="UserTask_01l0zzf_di" bpmnElement="Task_06du9cw" bioc:stroke="#1E88E5" bioc:fill="#BBDEFB">
+        <dc:Bounds x="285" y="212" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_17bi2ju_di" bpmnElement="ExclusiveGateway_17bi2ju" isMarkerVisible="true">
         <dc:Bounds x="428" y="130" width="50" height="50" />
@@ -194,13 +208,6 @@ execution.setVariable("textGerman",requestDeclinedReason);]]></bpmn:script>
           <dc:Bounds x="644" y="231" width="90" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_17id93y_di" bpmnElement="SequenceFlow_17id93y">
-        <di:waypoint xsi:type="dc:Point" x="239" y="155" />
-        <di:waypoint xsi:type="dc:Point" x="284" y="155" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="216.5" y="134" width="90" height="12" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_1il3cd2_di" bpmnElement="Task_07g0pyt">
         <dc:Bounds x="139" y="115" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -216,6 +223,23 @@ execution.setVariable("textGerman",requestDeclinedReason);]]></bpmn:script>
       <bpmndi:BPMNShape id="ScriptTask_0pakt5a_di" bpmnElement="Task_1a6hmrf">
         <dc:Bounds x="552" y="212" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_04epzhk_di" bpmnElement="SequenceFlow_04epzhk">
+        <di:waypoint xsi:type="dc:Point" x="239" y="155" />
+        <di:waypoint xsi:type="dc:Point" x="285" y="155" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="262" y="134" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ScriptTask_050fykt_di" bpmnElement="Task_1vz1jn0">
+        <dc:Bounds x="285" y="115" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1agz48n_di" bpmnElement="SequenceFlow_1agz48n">
+        <di:waypoint xsi:type="dc:Point" x="385" y="155" />
+        <di:waypoint xsi:type="dc:Point" x="428" y="155" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="406.5" y="134" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

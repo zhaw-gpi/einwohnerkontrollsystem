@@ -177,20 +177,22 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="delivery">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="deliveryHeader" type="eCH-0058:headerType"/>
-				<xs:choice>
-					<xs:element name="personMoveRequest" type="eCH-0194:personMoveRequest"/>
-					<xs:element name="personMoveResponse" type="eCH-0194:personMoveResponse"/>
-					<xs:element name="platformMoveIn" type="eCH-0194:platformMoveIn"/>
-					<xs:element name="platformMoveOut" type="eCH-0194:platformMoveOut"/>
-					<xs:element name="platformMoveData" type="eCH-0194:platformMoveData"/>
-					<xs:element name="platformMoveCommit" type="eCH-0194:platformMoveCommit"/>
-					<xs:element name="platformMoveInAddress" type="eCH-0194:platformMoveInAddress"/>
-				</xs:choice>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
+        <xs:complexType name="deliveryType">
+                <xs:sequence>
+                        <xs:element name="deliveryHeader" type="eCH-0058:headerType"/>
+                        <xs:choice>
+                                <xs:element name="personMoveRequest" type="eCH-0194:personMoveRequest"/>
+                                <xs:element name="personMoveResponse" type="eCH-0194:personMoveResponse"/>
+                                <xs:element name="platformMoveIn" type="eCH-0194:platformMoveIn"/>
+                                <xs:element name="platformMoveOut" type="eCH-0194:platformMoveOut"/>
+                                <xs:element name="platformMoveData" type="eCH-0194:platformMoveData"/>
+                                <xs:element name="platformMoveCommit" type="eCH-0194:platformMoveCommit"/>
+                                <xs:element name="platformMoveInAddress" type="eCH-0194:platformMoveInAddress"/>
+                                <xs:element name="positiveReport" type="eCH-0194:positiveReportType"/>
+                                <xs:element name="negativeReport" type="eCH-0194:negativeReportType"/>
+                        </xs:choice>
+                </xs:sequence>
+        </xs:complexType>
+        
+	<xs:element name="delivery" type="eCH-0194:deliveryType" />
 </xs:schema>
