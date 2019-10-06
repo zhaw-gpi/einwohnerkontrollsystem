@@ -14,7 +14,7 @@ Bezüglich technischer Implementation folgt dieses Projekt 1:1 dem async-messagi
 3. die einen Mitarbeiter beim Einwohnerkontrollsystem simuliert über folgende Tätigkeiten:
    1. Zwischen 3 bis 30 Sekunden warten
    2. Den Anfangsbuchstaben des Vornamens auswerten: Falls er zwischen A-M liegt, dann wird das Gesuch für den Umzug angenommen (responseCode 1), ansonsten abgelehnt (responseCode 0)
-4. Nun wird über die beim POST-Request mitgegebene callbackURL die Umzugsplattform (http://localhost:8081/umzugapi/technicalreceipt/) ebenfalls über einen POST-Request aufgerufen, welchem eine eCH-0058 Technical Receipt-Nachricht mit folgendem Inhalt übermittelt wird:
+4. Nun wird über die beim POST-Request mitgegebene callbackURL die Umzugsplattform (http://localhost:8081/umzugapi/v1/technicalreceipt/) ebenfalls über einen POST-Request aufgerufen, welchem eine eCH-0058 Technical Receipt-Nachricht mit folgendem Inhalt übermittelt wird:
    1. BusinessKey (aus eCH-194 PlatformMoveOut-Nachricht)
    2. responseCode
 
